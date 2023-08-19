@@ -1,0 +1,3 @@
+export const GET_SHIPS="GET_SHIPS"
+export const GET_FILTERED_SHIPS="GET_FILTERED_SHIPS"
+export const GET_TYPES = 'GET_TYPES'
