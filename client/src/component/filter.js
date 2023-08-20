@@ -1,17 +1,24 @@
 import { Fragment, useEffect, useState } from "react"
-import { getShipTypes } from "../actions/ship"
+import { getFilteredShips, getShipTypes } from "../actions/ship"
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Select, MenuItem, FormControl, InputLabel, TextField, Button, Grid } from '@mui/material';
+import ShipTable from "./filtered-data";
 
-export const Filter = () => {
-    let options = []
+
+const Filter = ({ types, getShipTypes, getFilteredShips, ships }) => {
     useEffect(() => {
         getShipTypes()
-    }, []) 
-
+    }, [])
     const [filter, setFilter] = useState({
         type: '',
-        weight: '',
+        weight: null,
+        homePort: ''
+    });
+
+    const [submitedFilter, setSubmitedFilter] = useState({
+        type: '',
+        weight: null,
         homePort: ''
     });
 
@@ -25,35 +32,76 @@ export const Filter = () => {
 
     const onSubmit = e => {
         e.preventDefault();
-        console.log(filter)
+        setSubmitedFilter(filter)
+        getFilteredShips(filter);
     }
 
-    
+
     return (
-        <Fragment>
+        <Fragment className='container'>
             <form className='form' onSubmit={e => onSubmit(e)}>
-                <div className='form-group'>
-                    <select name='type' onChange={e => onChange(e)} value={type} >
-                        <option value='0'>* Select Ship Type</option>
-                        {options.map(option => <option value={option}>{option}</option>)}
-                    </select>
-                </div>
-                <div className='form-group'>
-                    <input type='number' placeholder='Weight' name='weight' onChange={e => onChange(e)} value={weight} />
-                </div>
-                <div className='form-group'>
-                    <input type='text' placeholder='Home Port' name='homePort' onChange={e => onChange(e)} value={homePort} />
-                </div>
-                <input type='submit' className='btn btn-primary my-1' />
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <FormControl className="bot-padding">
+                            <InputLabel id="dropdown-label">Select Option</InputLabel>
+                            <Select
+                                labelId="dropdown-label"
+                                id="dropdown"
+                                name='type' onChange={e => onChange(e)} value={type}
+                            >
+                                <MenuItem value={null}>
+                                    <em>None</em>
+                                </MenuItem>
+                                {types.map(optionType => <MenuItem value={optionType}>{optionType}</MenuItem>)}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField className="bot-padding"
+                            label="Enter Weight"
+                            variant="outlined"
+                            type="number"
+                            name='weight'
+                            InputProps={{
+                                inputProps: { min: 0 } // Allow only non-negative values
+                            }}
+                            onChange={e => onChange(e)} value={weight}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField className="bot-padding"
+                            label="Enter Weight"
+                            variant="outlined"
+                            name='homePort' onChange={e => onChange(e)} value={homePort}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button variant="contained" color="primary" type='submit'>
+                            Search
+                        </Button>
+                    </Grid>
+                </Grid>
             </form>
+            <ShipTable filter={submitedFilter} />
         </Fragment>
     )
 }
 
+Filter.propTypes = {
+    types: PropTypes.array,
+    loading: PropTypes.bool,
+    ships: PropTypes.array,
+    getShipTypes: PropTypes.func.isRequired,
+    getFilteredShips: PropTypes.func.isRequired,
+}
 
 const mapStateToProps = (state) => ({
-    ship: state.ship,
-  });
-  
-  export default connect(mapStateToProps, { getShipTypes })(Filter);
-  
+    types: state.ships.type,
+    ships: state.ships.ships,
+    // loading: state.loading
+    // state: state
+});
+
+export default connect(mapStateToProps, { getShipTypes, getFilteredShips })(Filter);

@@ -26,6 +26,8 @@ export const getShipTypes = () => async (dispatch) => {
     try {
         const res = await axios.get('http://localhost:3001/api/ships/types');
 
+        console.log(res)
+
         dispatch({
             type: GET_TYPES,
             payload: res.data,
@@ -38,7 +40,7 @@ export const getShipTypes = () => async (dispatch) => {
     }
 };
 
-export const getFilteredShips = (filteredData, history, edit = false) => async (
+export const getFilteredShips = (filteredData) => async (
     dispatch
 ) => {
     try {
@@ -48,8 +50,9 @@ export const getFilteredShips = (filteredData, history, edit = false) => async (
             },
         };
 
-        const res = await axios.get('http://localhost:3001/api/ships', filteredData , config);
+        const res = await axios.get('http://localhost:3001/api/ship', {params: filteredData} , config);
 
+        console.log(res)
         dispatch({
             type: GET_FILTERED_SHIPS,
             payload: res.data,
@@ -57,7 +60,6 @@ export const getFilteredShips = (filteredData, history, edit = false) => async (
 
     } catch (err) {
         console.error(err.response);
-        const errors = err.response.data.errors;
 
         dispatch({
             type: "PROFILE_ERROR",
